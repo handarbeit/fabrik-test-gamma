@@ -1,74 +1,125 @@
-# Feature Specification: e2e yolo auto-merge (20260527-150017)
+# Feature Specification: e2e cross-repo spawn
 
 **Feature Branch**: `fabrik/issue-26`
-**Created**: 2026-05-27
-**Status**: Implemented
-**Input**: User description: "End-to-end verification of the GitHub native auto-merge path for yolo issues (#829)."
+**Created**: 2026-10-14
+**Status**: Specified
+**Input**: User description:
+
+> ## Goal
+>
+> Verify cross-repo decomposition works end-to-end. Plan should spawn a sub-issue in handarbeit/fabrik-test-delta because the work requires changes in both repos in strict order.
+>
+> ## What needs to change
+>
+> ### In handarbeit/fabrik-test-delta (the beta repo)
+> - Add an exported function HelloE2E202610141933573941() string to pkg/greeting/greeting.go returning the literal string "e2e-cross-repo-spawn-20261014-193357-3941".
+> - Add a test for it in pkg/greeting/greeting_test.go.
+>
+> ### In handarbeit/fabrik-test-gamma (this repo)
+> - Update main.go to call greeting.HelloE2E202610141933573941() (in addition to whatever it already does) and print the result.
+> - Run go mod tidy if needed.
+>
+> ## Constraint
+>
+> Beta must land first because alpha cannot import a function that does not yet exist. Plan should emit a FABRIK_SPAWN_CHILD_BEGIN block targeting the beta repo to decompose. Use the exact function name and string literal given above verbatim — do not invent your own; a per-run-unique token is already baked into them, and this scenario's final assertion depends on that exact text landing in the beta repo.
+>
+> This is an e2e regression test for #803 (on-demand spawn-target repo init) and #1308 (per-run-unique fixture token).
 
 ## Background
 
-Fabrik historically merged yolo PRs via a poll-merge loop. Issue #829 introduced a GitHub-native auto-merge path: when Validate completes on a yolo issue, Fabrik enables GitHub's built-in auto-merge on the PR (applying the `fabrik:auto-merge-enabled` label) and lets GitHub merge the PR once CI passes, rather than polling and merging directly.
+This is an end-to-end regression scenario for Fabrik's cross-repo decomposition. The work is deliberately split across two repositories with a hard ordering dependency: the greeting function must exist in `handarbeit/fabrik-test-delta` (the "beta" repo) before `handarbeit/fabrik-test-gamma` (this repo, the "alpha" repo in the issue text) can call it. A single-repo plan cannot satisfy that, so the pipeline must decompose the work by spawning a sub-issue in the beta repo, which then lands first.
 
-This issue drives the simplest possible change — appending one HTML comment line to `README.md` — through the full yolo pipeline to verify the new convergence flow fires correctly and that the legacy poll-merge loop is not triggered. It is a repeat of issue #20 with a fresh timestamp, providing an additional data point for the post-Validate convergence flow.
+The scenario guards two earlier fixes: #803 (on-demand initialisation of a spawn-target repo) and #1308 (a per-run-unique fixture token). The function name `HelloE2E202610141933573941` and the string `e2e-cross-repo-spawn-20261014-193357-3941` are that per-run-unique token. The scenario's final assertion checks that this exact text landed in the beta repo, so it must be used verbatim and never substituted.
 
 ## User Scenarios & Testing *(mandatory)*
 
-### User Story 1 - Full yolo pipeline uses GitHub native auto-merge (Priority: P1)
+### User Story 1 - Beta repo exposes the greeting function (Priority: P1)
 
-A developer monitoring the project board sees this issue advance automatically through all pipeline stages (Specify → Research → Plan → Implement → Review → Validate → Done), a PR is created, GitHub auto-merge is enabled on that PR (not merged directly by Fabrik), and the single-line README change appears on `main` once CI passes.
+The beta repo (`handarbeit/fabrik-test-delta`) gains an exported greeting function that returns the per-run-unique string, with a test. This is delivered through a spawned sub-issue, not directly from this issue.
 
-**Why this priority**: This is the sole purpose of the issue — verifying the post-Validate convergence flow uses GitHub native auto-merge rather than the legacy poll-merge loop.
+**Why this priority**: The alpha-side change cannot compile without it, and the scenario's final assertion checks for it in the beta repo.
 
-**Independent Test**: After the issue moves to Done, check out `main` and confirm the final line of README.md is `<!-- auto-merge-yolo-20260527-150017 -->`. Verify the `fabrik:auto-merge-enabled` label was applied to the PR.
+**Independent Test**: In the beta repo, run the package tests for `pkg/greeting`. The new test passes, and the function returns exactly `e2e-cross-repo-spawn-20261014-193357-3941`.
 
 **Acceptance Scenarios**:
 
-1. **Given** the issue at Specify with `fabrik:yolo`, **When** Fabrik processes it, **Then** the issue advances to Research without requiring human input
-2. **Given** the issue in the pipeline, **When** Implement runs, **Then** a PR is created on branch `fabrik/issue-26` with `Closes #26` in the body
-3. **Given** the PR created by Implement, **When** Validate completes, **Then** Fabrik enables GitHub auto-merge on the PR (applies `fabrik:auto-merge-enabled` label) rather than merging directly
-4. **Given** `main` after the PR merges via GitHub auto-merge, **When** the last line of `README.md` is read, **Then** it is exactly `<!-- auto-merge-yolo-20260527-150017 -->`
+1. **Given** the beta repo's `pkg/greeting` package, **When** `HelloE2E202610141933573941()` is called, **Then** it returns the string `e2e-cross-repo-spawn-20261014-193357-3941`.
+2. **Given** the beta repo's test suite, **When** the tests run, **Then** a test in `pkg/greeting/greeting_test.go` covers the new function and passes.
+
+---
+
+### User Story 2 - Alpha repo calls and prints the beta function's result (Priority: P2)
+
+This repo's `main.go` calls `greeting.HelloE2E202610141933573941()` from the beta repo, in addition to its existing behaviour, and prints the result. This lands only after User Story 1 has landed.
+
+**Why this priority**: It depends on User Story 1 and completes the end-to-end flow.
+
+**Independent Test**: With the beta change available, build and run this repo's program. It still does what it did before and also prints `e2e-cross-repo-spawn-20261014-193357-3941`.
+
+**Acceptance Scenarios**:
+
+1. **Given** the beta function has landed, **When** this repo's program runs, **Then** its prior output is unchanged and the returned string is also printed.
+2. **Given** the dependency on the beta repo, **When** `go mod tidy` is run if needed, **Then** the module files are consistent and the build succeeds.
+
+---
+
+### User Story 3 - Plan decomposes the work across repos (Priority: P1)
+
+During Plan, the pipeline recognises that the work spans two repos in strict order and emits a `FABRIK_SPAWN_CHILD_BEGIN` block targeting the beta repo. The beta sub-issue is created and blocks this issue until it resolves.
+
+**Why this priority**: This is the behaviour under test (#803, #1308). Without the spawn, the scenario has no value.
+
+**Independent Test**: After Plan, a sub-issue exists in `handarbeit/fabrik-test-delta`, linked as a blocker of this issue, carrying the function name and string verbatim.
+
+**Acceptance Scenarios**:
+
+1. **Given** this issue reaches Plan, **When** Plan completes, **Then** its output contains a spawn block targeting `handarbeit/fabrik-test-delta`.
+2. **Given** the spawn block, **When** the child is created, **Then** the child issue body states the exact function name and exact string literal given above.
+3. **Given** the child is unresolved, **When** the pipeline continues, **Then** this issue does not implement the `main.go` change until the child has landed.
 
 ---
 
 ### Edge Cases
 
-- README.md may or may not end with a trailing newline; the appended line must be on its own line regardless
-- The Plan stage must not decompose into sub-issues — this is a single-repo, single-file change
+- The spawn-target repo may not yet be initialised for Fabrik; it must be initialised on demand (#803).
+- The function name and string must not be re-invented, abbreviated or regenerated at any stage; the per-run token must appear unchanged in the child issue, the beta code and its test.
+- The alpha change must not be implemented or merged before the beta change has landed, since it would not compile.
 
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
 
-- **FR-001**: Implement MUST append exactly `<!-- auto-merge-yolo-20260527-150017 -->` as the final line of `README.md`
-- **FR-002**: No other source or configuration files MUST be modified
-- **FR-003**: The Plan stage MUST NOT spawn sub-issues or decompose across repos
-- **FR-004**: The PR body MUST contain `Closes #26` so Fabrik can discover and merge it
+- **FR-001**: The beta repo `handarbeit/fabrik-test-delta` MUST export `HelloE2E202610141933573941() string` in `pkg/greeting/greeting.go`, returning exactly `e2e-cross-repo-spawn-20261014-193357-3941`.
+- **FR-002**: The beta repo MUST include a test for that function in `pkg/greeting/greeting_test.go`, and it MUST pass.
+- **FR-003**: This repo's `main.go` MUST call `greeting.HelloE2E202610141933573941()`, keep its existing behaviour, and print the returned value.
+- **FR-004**: The module files in this repo MUST be tidy (`go mod tidy` run if needed) so the program builds.
+- **FR-005**: The beta change MUST land before the alpha change.
+- **FR-006**: Plan MUST decompose the work by emitting a `FABRIK_SPAWN_CHILD_BEGIN` block targeting `handarbeit/fabrik-test-delta`.
+- **FR-007**: The function name and string literal MUST be used verbatim, with no substituted values, in the spawned child issue, the beta code and its test.
 
 ## Success Criteria *(mandatory)*
 
 ### Measurable Outcomes
 
-- **SC-001**: The issue reaches the Done column on the project board
-- **SC-002**: The linked PR is merged into `main` via GitHub native auto-merge (not the legacy poll-merge loop)
-- **SC-003**: `README.md` on `main` ends with the line `<!-- auto-merge-yolo-20260527-150017 -->`
-- **SC-004**: No other files (excluding this specification) are changed in the merged PR diff
+- **SC-001**: A sub-issue targeting `handarbeit/fabrik-test-delta` exists as a result of Plan, and blocks this issue until resolved.
+- **SC-002**: The text `e2e-cross-repo-spawn-20261014-193357-3941` and the name `HelloE2E202610141933573941` are present in the beta repo on its default branch after the scenario.
+- **SC-003**: The beta repo's tests pass, and this repo builds and prints the returned string when run.
+- **SC-004**: The beta change merged before the alpha change.
 
 ## Assumptions
 
-- The `fabrik:yolo` label is set on the issue, enabling auto-advance and GitHub native auto-merge when Validate completes
-- This is a single-repo operation — `handarbeit/fabrik-test-alpha` only; no cross-repo work
-- CI on this repo runs `go build ./...` and `go test ./...`; appending a comment to README.md does not affect either
-- GitHub auto-merge is enabled on the repository
+- "Alpha" in the issue text means this repo (`handarbeit/fabrik-test-gamma`); "beta" means `handarbeit/fabrik-test-delta`.
+- `fabrik:yolo` is set, so stages auto-advance and this stage completes without waiting for human approval.
+- This repo already has a `main.go` and module setup from which the beta package can be imported; no import-path questions block the spec (Research and Plan decide how).
+- The `pkg/greeting` package and its test file exist in the beta repo or can be created there as part of the child issue.
 
-## Out of Scope
+## Out of Scope *(optional)*
 
-- Any changes beyond appending the single comment line to `README.md`
-- Cross-repo sub-issue spawning or decomposition
-- Updating any Go source files, tests, or configuration
-- Verifying the legacy poll-merge loop (that path is superseded)
+- Any other changes to either repo beyond the function, its test, and the `main.go` call and print.
+- Generating a new token or altering the given name and string.
+- Changes to the pipeline's spawn mechanism itself; this issue only exercises it.
 
-## Source References
+## Source References *(optional)*
 
-- `README.md` — the only file modified by this issue
-- Fabrik issue #829 — introduced GitHub native auto-merge path for yolo issues
-- `specs/20-e2e-yolo-auto-merge/spec.md` — prior run of the same verification (issue #20)
+- #803: on-demand spawn-target repo init
+- #1308: per-run-unique fixture token
