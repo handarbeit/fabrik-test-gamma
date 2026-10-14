@@ -16,7 +16,7 @@ func TestGreetingOutput(t *testing.T) {
 			"default",
 			nil,
 			[]string{
-				"Hello, world, from fabrik-test-beta",
+				"Hello, world, from fabrik-test-delta",
 				"e2e-cross-repo-spawn",
 				"e2e-cross-repo-spawn-31",
 				"e2e-cross-repo-spawn-52",
@@ -78,7 +78,7 @@ func TestGreetingOutput(t *testing.T) {
 			"with argument",
 			[]string{"Alice"},
 			[]string{
-				"Hello, Alice, from fabrik-test-beta",
+				"Hello, Alice, from fabrik-test-delta",
 				"e2e-cross-repo-spawn",
 				"e2e-cross-repo-spawn-31",
 				"e2e-cross-repo-spawn-52",

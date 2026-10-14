@@ -1,4 +1,4 @@
-# Merge-train e2e bisection fixture — commit this to fabrik-test-alpha as
+# Merge-train e2e bisection fixture — commit this to fabrik-test-gamma as
 # .github/workflows/train-poison-guard.yml and mark the "train-poison-guard"
 # check REQUIRED on branch protection (so the internal train's combined-Validate
 # poll gates on it).

@@ -1,5 +1,5 @@
-module github.com/handarbeit/fabrik-test-alpha
+module github.com/handarbeit/fabrik-test-gamma
 
 go 1.22
 
-require github.com/handarbeit/fabrik-test-beta v0.5.1-0.20261014082140-09ed791c3468
+require github.com/handarbeit/fabrik-test-delta v0.0.0-20261014151252-e2f0daa86d2a // indirect

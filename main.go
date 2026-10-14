@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/handarbeit/fabrik-test-beta/pkg/greeting"
+	"github.com/handarbeit/fabrik-test-delta/pkg/greeting"
 )
 
 func main() {

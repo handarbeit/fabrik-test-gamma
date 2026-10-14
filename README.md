@@ -1,4 +1,4 @@
-# fabrik-test-alpha
+# fabrik-test-gamma
 <!-- convergence-race-B-20261001-011647 -->
 <!-- convergence-race-A-20261001-011647 -->
 <!-- convergence-race-B-20260930-223921 -->
@@ -129,13 +129,13 @@
 <!-- convergence-race-B-20260526-122826 -->
 <!-- convergence-race-A-20260526-122826 -->
 
-Primary test bed for [Fabrik](https://github.com/handarbeit/fabrik), paired with [`fabrik-test-beta`](https://github.com/handarbeit/fabrik-test-beta).
+Primary test bed for [Fabrik](https://github.com/handarbeit/fabrik), paired with [`fabrik-test-delta`](https://github.com/handarbeit/fabrik-test-delta).
 
 This repository is not a real project. It exists purely as substrate for exercising Fabrik's multi-repo features (cross-repo sub-issue spawn, cross-repo dependency linkage, parallel multi-repo work, etc.) without polluting real project boards.
 
 ## Layout
 
-- `main.go` — minimal CLI that will eventually consume `fabrik-test-beta`'s greeting package. Cross-repo Fabrik tests file issues here that require a change in beta first.
+- `main.go` — minimal CLI that will eventually consume `fabrik-test-delta`'s greeting package. Cross-repo Fabrik tests file issues here that require a change in beta first.
 - `.specify/` — Spec Kit templates used by Fabrik's customized Specify stage.
 
 ## License
