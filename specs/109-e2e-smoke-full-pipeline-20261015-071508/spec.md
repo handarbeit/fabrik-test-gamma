@@ -17,7 +17,7 @@ An operator running the smoke test wants a single, unique marker line for this r
 
 **Why this priority**: It is the only deliverable. Its merge is the evidence that the pipeline completed.
 
-**Independent Test**: After the PR merges, the last line of `e2e/markers/smoke-full-pipeline.md` on `main` is `<!-- smoke-full-pipeline-20261015-071508 -->`, and the merged diff touches only that file and adds only that line.
+**Independent Test**: After the PR merges, the last line of `e2e/markers/smoke-full-pipeline.md` on `main` is `<!-- smoke-full-pipeline-20261015-071508 -->`, and, apart from the engine-committed spec file, the merged diff touches only that file and adds only that line.
 
 **Acceptance Scenarios**:
 
@@ -39,7 +39,7 @@ An operator running the smoke test wants a single, unique marker line for this r
 - **FR-001**: The file `e2e/markers/smoke-full-pipeline.md` MUST end with the line `<!-- smoke-full-pipeline-20261015-071508 -->` after the change.
 - **FR-002**: The line MUST be appended at the very end of the file, with all existing content left unchanged.
 - **FR-003**: If the file does not exist, it MUST be created containing that line.
-- **FR-004**: The change MUST be limited to that one file and that one added line.
+- **FR-004**: Apart from this spec file (`specs/109-e2e-smoke-full-pipeline-20261015-071508/spec.md`), which the engine commits to the issue branch when Specify completes, the change MUST be limited to that one marker file and that one added line.
 - **FR-005**: The work MUST stay within this single repository, and the Plan stage MUST NOT decompose it into child issues.
 - **FR-006**: The linked PR MUST include `Closes #109` so Fabrik can link it to this issue.
 
@@ -52,7 +52,7 @@ An operator running the smoke test wants a single, unique marker line for this r
 ### Measurable Outcomes
 
 - **SC-001**: The issue reaches Done with its linked PR merged into `main`, driven only by the `fabrik:yolo` auto-advance and with no manual intervention.
-- **SC-002**: The merged PR's diff is exactly one added line in exactly one file.
+- **SC-002**: Apart from the engine-committed spec file, the merged PR's diff is exactly one added line in exactly one file (`e2e/markers/smoke-full-pipeline.md`).
 - **SC-003**: No child issues are spawned and no other repository is touched.
 
 ## Assumptions
