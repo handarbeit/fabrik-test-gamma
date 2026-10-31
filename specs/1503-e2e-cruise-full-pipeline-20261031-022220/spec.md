@@ -37,7 +37,7 @@ A maintainer wants a unique, identifiable marker for this run committed to the r
 
 **Why this priority**: It is the only code change in the issue. Without it there is no PR for cruise to hold at Validate-complete.
 
-**Independent Test**: Inspect `e2e/markers/cruise-full-pipeline.md` on the issue branch. Its last line is exactly `<!-- cruise-pipeline-20261031-022220 -->`, and the diff against the base branch adds only that line (plus the file itself if it did not exist).
+**Independent Test**: Inspect `e2e/markers/cruise-full-pipeline.md` on the issue branch. Its last line is exactly `<!-- cruise-pipeline-20261031-022220 -->`, and, apart from the engine-committed spec artifact `specs/1503-e2e-cruise-full-pipeline-20261031-022220/spec.md`, the diff against the base branch adds only that line (plus the file itself if it did not exist).
 
 **Acceptance Scenarios**:
 
@@ -91,7 +91,7 @@ After the pipeline stops at Validate-complete, a human merges the PR. The issue 
 - **FR-001**: The final line of `e2e/markers/cruise-full-pipeline.md` is exactly `<!-- cruise-pipeline-20261031-022220 -->`.
 - **FR-002**: If `e2e/markers/cruise-full-pipeline.md` does not exist, it is created containing the marker line.
 - **FR-003**: Existing content of `e2e/markers/cruise-full-pipeline.md` is left unchanged. The marker is only appended.
-- **FR-004**: The change touches no file other than `e2e/markers/cruise-full-pipeline.md`.
+- **FR-004**: The change touches no file other than `e2e/markers/cruise-full-pipeline.md`, apart from the engine-committed spec artifact `specs/1503-e2e-cruise-full-pipeline-20261031-022220/spec.md`, which is pipeline output and not part of the code change.
 - **FR-005**: The Plan stage does not decompose the work and spawns no child issues.
 - **FR-006**: With `fabrik:cruise` applied, the issue advances through all pipeline stages to Validate-complete without a human approving each stage.
 - **FR-007**: At Validate-complete, the linked PR remains open and unmerged, and the issue is not moved to Done.
@@ -106,7 +106,7 @@ After the pipeline stops at Validate-complete, a human merges the PR. The issue 
 
 ### Measurable Outcomes
 
-- **SC-001**: The PR diff contains exactly one added marker line in exactly one file, with no other changed lines.
+- **SC-001**: Excluding the engine-committed spec artifact, the PR diff contains exactly one added marker line in exactly one file, with no other changed lines.
 - **SC-002**: The issue reaches Validate-complete with no human advancement action between Specify and Validate.
 - **SC-003**: At Validate-complete, 0 merged PRs are linked to the issue and the issue is not in Done.
 - **SC-004**: After the human merge, the issue is closed with no manual label or board correction.
