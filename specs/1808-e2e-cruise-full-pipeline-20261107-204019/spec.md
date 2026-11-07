@@ -19,7 +19,7 @@ An operator running the e2e suite needs a trivial, deterministic change that pro
 
 **Why this priority**: This is the whole deliverable. Without a PR carrying a real diff, the pipeline contract cannot be exercised.
 
-**Independent Test**: Inspect the PR diff. It touches only `e2e/markers/cruise-full-pipeline.md` and adds only the line `<!-- cruise-pipeline-20261107-204019 -->` as the last line of the file.
+**Independent Test**: Inspect the PR diff. Apart from the engine-committed spec artifact `specs/1808-e2e-cruise-full-pipeline-20261107-204019/spec.md`, it touches only `e2e/markers/cruise-full-pipeline.md` and adds only the line `<!-- cruise-pipeline-20261107-204019 -->` as the last line of the file.
 
 **Acceptance Scenarios**:
 
@@ -70,7 +70,7 @@ After a human merges the PR, the issue should close and reach Done correctly.
 - **FR-001**: `e2e/markers/cruise-full-pipeline.md` MUST contain the line `<!-- cruise-pipeline-20261107-204019 -->` as its last line.
 - **FR-002**: If the file does not exist, it MUST be created, with the marker line as its content.
 - **FR-003**: If the file exists, its existing content MUST be preserved unchanged and the marker line only appended.
-- **FR-004**: The change MUST touch exactly one file and add exactly one line.
+- **FR-004**: The change MUST touch exactly one file and add exactly one line, apart from the engine-committed spec artifact `specs/1808-e2e-cruise-full-pipeline-20261107-204019/spec.md`, which is pipeline output and not part of the code change.
 - **FR-005**: The work MUST NOT be decomposed into child issues.
 - **FR-006**: The PR MUST NOT be merged by the engine under `fabrik:cruise`. A human merges it.
 
@@ -78,7 +78,7 @@ After a human merges the PR, the issue should close and reach Done correctly.
 
 ### Measurable Outcomes
 
-- **SC-001**: The PR diff is exactly one file and one added line, matching the marker text.
+- **SC-001**: Excluding the engine-committed spec artifact, the PR diff is exactly one file and one added line, matching the marker text.
 - **SC-002**: The item reaches Validate-complete through automatic stage advancement with no human approval between stages.
 - **SC-003**: At Validate-complete the linked PR is open and unmerged, and the issue is not in Done.
 - **SC-004**: After a human merges the PR, the issue is closed.
