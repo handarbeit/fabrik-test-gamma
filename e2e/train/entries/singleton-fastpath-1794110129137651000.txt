@@ -1,0 +1,1 @@
+singleton fast-path member (clean) — #1874 exactly-once landing
