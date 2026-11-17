@@ -2,4 +2,4 @@ module github.com/handarbeit/fabrik-test-gamma
 
 go 1.22
 
-require github.com/handarbeit/fabrik-test-delta v0.0.0-20261117052537-cda94eac5e1b
+require github.com/handarbeit/fabrik-test-delta v0.0.0-20261117101023-10de3c3cede2
