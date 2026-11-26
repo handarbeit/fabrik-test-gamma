@@ -78,7 +78,7 @@ A single marker line is appended to `e2e/markers/base-branch-pipeline.md`. The c
 
 ## Assumptions
 
-- The repository's default base branch is `e2e-base-branch-20261126-052956`, so the target branch and the default coincide for this run.
+- The repository's default branch is `main`. The target branch `e2e-base-branch-20261126-052956` is a non-default base, selected by the `base:` label, which is what exercises the `base:<branch>` contract.
 - The marker is a plain HTML comment, so it needs no format or build handling.
 - No documentation changes are needed.
 
